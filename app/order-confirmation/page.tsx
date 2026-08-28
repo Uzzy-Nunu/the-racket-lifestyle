@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+export default async function OrderConfirmation({ searchParams }: { searchParams: Promise<{ reference?: string }> }) { const { reference } = await searchParams; return <><SiteHeader/><main className="page-shell grid min-h-[55vh] place-items-center py-12"><section className="max-w-xl text-center"><CheckCircle2 className="mx-auto text-cobalt" size={54}/><p className="eyebrow mt-6">Payment hand-off complete</p><h1 className="display mt-3 text-5xl">YOU’RE IN.</h1><p className="mt-5 leading-relaxed">Your payment reference is <span className="font-mono text-sm">{reference || "pending verification"}</span>. Once Paystack verifies payment, your order is prepared from Nigeria stock and we’ll update you from packing to your door.</p><Link href="/shop" className="mt-8 inline-block rounded-full bg-lime px-6 py-3 text-sm font-bold">KEEP SHOPPING</Link></section></main><SiteFooter/></>; }

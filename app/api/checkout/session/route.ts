@@ -1,0 +1,5 @@
+import { NextResponse } from "next/server";
+import { checkoutSchema } from "@/lib/validation";
+import { products } from "@/lib/products";
+import { initializePaystackPayment } from "@/lib/payments/paystack";
+export async function POST(request: Request) { try { const payload = checkoutSchema.parse(await request.json()); const total = payload.items.reduce((sum, item) => { const product = products.find((entry) => entry.id === item.productVariantId); if (!product || !product.inStock) throw new Error("One or more bag items are unavailable"); return sum + product.price * item.quantity; }, 0); const reference = `RKL-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`; const payment = await initializePaystackPayment({ email: payload.email, amountMinor: total, reference, metadata: { email: payload.email, items: payload.items, address: { region: payload.region, city: payload.city } } }); return NextResponse.json(payment, { status: 201 }); } catch (error) { const message = error instanceof Error ? error.message : "Invalid checkout request"; return NextResponse.json({ error: message }, { status: 400 }); } }
