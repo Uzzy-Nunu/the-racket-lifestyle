@@ -11,6 +11,14 @@ Premium, Nigeria-focused tennis, badminton and padel commerce MVP built with Nex
 
 Without payment credentials, checkout uses a safe local hand-off flow so you can evaluate the UI. Adding `PAYSTACK_SECRET_KEY` enables real Paystack initialization; do not test real payments until the payment verification and order persistence steps are connected to your production Supabase project.
 
+## Deploy to Vercel
+
+1. Import the GitHub repository `https://github.com/Uzzy-Nunu/the-racket-lifestyle.git` into Vercel.
+2. Select the Next.js project framework automatically (the repo includes a `vercel.json` configuration for the standard build and output settings).
+3. Add the environment variables from `.env.example` in the Vercel dashboard under Project > Settings > Environment Variables.
+4. Set the production branch to `master` (or `main` if you rename it locally before the push).
+5. Trigger the first deployment and verify the build succeeds.
+
 ## Structure
 
 - `app/` — storefront, checkout, protected admin routes, and route handlers
