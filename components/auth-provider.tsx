@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login: async (email: string, password: string, role: UserRole = "customer") => {
         const response = await fetch("/api/auth", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "login", email, password, role }),
         });
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signup: async (name: string, email: string, password: string) => {
         const response = await fetch("/api/auth", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "signup", name, email, password }),
         });
@@ -71,6 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout: () => {
         setUser(null);
         window.localStorage.removeItem(STORAGE_KEY);
+        // expire server cookie as well
+        try { document.cookie = 'rkl_token=; Path=/; Max-Age=0;'; } catch {}
       },
     }),
     [user]

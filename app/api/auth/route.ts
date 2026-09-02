@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { signToken } from "@/lib/auth";
 
 const storePath = path.join(process.cwd(), "data", "store.json");
 
@@ -19,11 +20,17 @@ type StoreData = {
   users: StoreUser[];
 };
 
+let memoryStore: StoreData | null = null;
+
 async function readStore(): Promise<StoreData> {
+  if (memoryStore) return memoryStore;
   try {
     const raw = await fs.readFile(storePath, "utf8");
-    return JSON.parse(raw) as StoreData;
+    const parsed = JSON.parse(raw) as StoreData;
+    memoryStore = parsed;
+    return parsed;
   } catch {
+    // fallback to seed in-memory store (safe for serverless/read-only mounts)
     const fallback: StoreData = {
       products: [],
       users: [
@@ -36,15 +43,27 @@ async function readStore(): Promise<StoreData> {
         },
       ],
     };
-    await fs.mkdir(path.dirname(storePath), { recursive: true });
-    await fs.writeFile(storePath, JSON.stringify(fallback, null, 2), "utf8");
+    memoryStore = fallback;
+    try {
+      await fs.mkdir(path.dirname(storePath), { recursive: true });
+      await fs.writeFile(storePath, JSON.stringify(fallback, null, 2), "utf8");
+    } catch (err) {
+      // writing failed (likely read-only FS in serverless). continue with in-memory store.
+      // console.warn("Could not persist store to disk, using in-memory fallback.", err);
+    }
     return fallback;
   }
 }
 
 async function writeStore(data: StoreData) {
-  await fs.mkdir(path.dirname(storePath), { recursive: true });
-  await fs.writeFile(storePath, JSON.stringify(data, null, 2), "utf8");
+  memoryStore = data;
+  try {
+    await fs.mkdir(path.dirname(storePath), { recursive: true });
+    await fs.writeFile(storePath, JSON.stringify(data, null, 2), "utf8");
+  } catch (err) {
+    // Could not write to disk (read-only). Keep in-memory and continue.
+    // console.warn("writeStore: falling back to in-memory store", err);
+  }
 }
 
 export async function POST(request: Request) {
@@ -84,14 +103,10 @@ export async function POST(request: Request) {
       store.users.push(user);
       await writeStore(store);
 
-      return NextResponse.json({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      });
+      const token = signToken({ id: user.id, email: user.email, role: user.role });
+      const res = NextResponse.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role } }, { status: 201 });
+      res.headers.append("Set-Cookie", `rkl_token=${token}; Path=/; HttpOnly; SameSite=Lax; Secure`);
+      return res;
     }
 
     const matchingUser = store.users.find(
@@ -102,14 +117,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
     }
 
-    return NextResponse.json({
-      user: {
-        id: matchingUser.id,
-        name: matchingUser.name,
-        email: matchingUser.email,
-        role: matchingUser.role,
-      },
-    });
+    const token = signToken({ id: matchingUser.id, email: matchingUser.email, role: matchingUser.role });
+    const res = NextResponse.json({ user: { id: matchingUser.id, name: matchingUser.name, email: matchingUser.email, role: matchingUser.role } });
+    res.headers.append("Set-Cookie", `rkl_token=${token}; Path=/; HttpOnly; SameSite=Lax; Secure`);
+    return res;
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Authentication failed." }, { status: 500 });
   }

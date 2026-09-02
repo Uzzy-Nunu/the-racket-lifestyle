@@ -21,26 +21,24 @@ export default async function HomePage() {
       <SiteHeader />
       <main>
         <section className="page-shell py-6 sm:py-10">
-          <div className="relative min-h-[620px] overflow-hidden rounded-[2rem] bg-cobalt text-cream">
-            <Image
-              priority
-              src="https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=1800&q=90"
-              alt="Black woman serving on a tennis court in perfect form"
-              fill
-              className="object-cover object-center opacity-60"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-cobalt via-cobalt/80 to-transparent" />
-            <div className="relative z-10 flex min-h-[620px] max-w-2xl flex-col justify-end p-8 sm:p-14">
-              <p className="eyebrow text-lime">Held and shipped from Nigeria</p>
-              <h1 className="display mt-4 text-5xl leading-[.86] sm:text-7xl">PLAY LIKE THE CLUB IS WATCHING.</h1>
-              <p className="mt-7 max-w-md text-base leading-relaxed text-cream/90">
-                Tennis, badminton and padel essentials for players who care about the details — grip, tension, fit, and the ten minutes before the match starts.
-              </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Link href="/shop" className="rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink">SHOP THE COLLECTION</Link>
-                <Link href="#sports" className="rounded-full border border-cream/60 px-6 py-3 text-sm font-bold">FIND YOUR SPORT</Link>
-              </div>
+          <div className="relative min-h-[620px] overflow-hidden rounded-[2rem] bg-transparent text-ink">
+          <Image
+            priority
+            src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1800&q=90"
+            alt="Black female tennis player serving on a real court"
+            fill
+            className="object-cover object-center"
+          />
+          <div className="relative z-10 flex min-h-[620px] max-w-2xl flex-col justify-end p-8 sm:p-14">
+            <p className="eyebrow text-lime">Held and shipped from Nigeria</p>
+            <h1 className="display mt-4 text-5xl leading-[.86] sm:text-7xl">GEAR FOR EVERY RALLY.</h1>
+            <p className="mt-7 max-w-md text-base leading-relaxed text-ink/90">
+              Shop tennis, padel, pickleball and badminton essentials selected for players who care about performance, style and everything around the game.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link href="/shop" className="rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink">shop all gear</Link>
             </div>
+          </div>
           </div>
         </section>
 
@@ -86,12 +84,12 @@ export default async function HomePage() {
         <section className="page-shell grid gap-9 py-16 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="eyebrow">Off-court, still in play</p>
-            <h2 className="display mt-3 text-5xl">THE GAME DOESN’T END AT THE NET.</h2>
-            <p className="mt-6 max-w-lg leading-relaxed">A kit bag by the door. A grip you trust without thinking about it. The quiet ten minutes before a match, and the coffee after.</p>
+            <h2 className="display mt-3 text-5xl">THE GAME DOESN'T END AT THE COURT.</h2>
+            <p className="mt-6 max-w-lg leading-relaxed">The match is only part of it. It's the people you meet at the club, the drinks after the final point, the weekend tournament, and the stories you bring home. The Racket Lifestyle is built for everything that happens around the game, too.</p>
             <Link href="/shop" className="mt-7 inline-flex items-center gap-2 rounded-full border border-ink px-5 py-3 text-sm font-bold">DISCOVER THE LIFESTYLE <ArrowRight size={17} /></Link>
           </div>
           <div className="relative min-h-[390px] overflow-hidden rounded-2xl">
-            <Image src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1200&q=85" alt="Racket sport lifestyle essentials" fill className="object-cover" />
+            <Image src="https://images.unsplash.com/photo-1546484959-f6f86a4f12c6?auto=format&fit=crop&w=1200&q=85" alt="Group of racket sport players socialising after a match" fill className="object-cover" />
           </div>
         </section>
 
