@@ -5,9 +5,33 @@ Premium, Nigeria-focused tennis, badminton and padel commerce MVP built with Nex
 ## Run locally
 
 1. Copy `.env.example` to `.env.local` and add Supabase, Paystack and Resend credentials.
-2. Run `pnpm install`.
-3. In Supabase SQL Editor, run `supabase/migrations/20260821120000_initial_schema.sql` (or link the project and run `supabase db push`).
-4. Run `pnpm dev`.
+2. Generate a strong `RKL_SECRET` locally with `openssl rand -base64 32` or `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
+3. Run `pnpm install`.
+4. In Supabase SQL Editor, run `supabase/migrations/20260821120000_initial_schema.sql` (or link the project and run `supabase db push`).
+5. Run `pnpm dev`.
+
+### Add an admin account now
+
+Use the seed script to create or reset the admin user with a hashed password:
+
+```bash
+ADMIN_EMAIL=admin@theracketlifestyle.com ADMIN_PASSWORD=admin123 node scripts/seed-admin.mjs
+```
+
+This writes the admin user to `data/store.json` using a hashed password, so you can sign in immediately in the local demo environment.
+
+### Link Supabase to this project
+
+1. Create a new Supabase project at https://supabase.com.
+2. In the Supabase dashboard, open Project Settings > API and copy:
+   - `Project URL` -> `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon/public` key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `service_role` key -> `SUPABASE_SERVICE_ROLE_KEY`
+3. Add those values to `.env.local` and keep the service role key server-only.
+4. In the Supabase SQL editor, run the migration SQL from `supabase/migrations/20260821120000_initial_schema.sql`.
+5. Restart the Next.js app so the new env values load.
+
+The app can still run in local demo mode without Supabase, but for persistent users, inventory, payments and production login, the Supabase values above should be used.
 
 Without payment credentials, checkout uses a safe local hand-off flow so you can evaluate the UI. Adding `PAYSTACK_SECRET_KEY` enables real Paystack initialization; do not test real payments until the payment verification and order persistence steps are connected to your production Supabase project.
 

@@ -2,8 +2,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
+import { hashPassword, verifyPassword } from "@/lib/password";
 
 const storePath = path.join(process.cwd(), "data", "store.json");
+const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@theracketlifestyle.com";
+const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 type Role = "customer" | "admin";
 
@@ -22,27 +25,42 @@ type StoreData = {
 
 let memoryStore: StoreData | null = null;
 
+async function ensureDefaultAdmin(store: StoreData) {
+  const adminEmail = DEFAULT_ADMIN_EMAIL.trim().toLowerCase();
+  const adminUser = store.users.find((user) => user.email.toLowerCase() === adminEmail);
+
+  if (adminUser) {
+    if (!adminUser.password.includes(":")) {
+      adminUser.password = hashPassword(DEFAULT_ADMIN_PASSWORD);
+    }
+    adminUser.role = "admin";
+    return;
+  }
+
+  store.users.push({
+    id: "admin-1",
+    name: "Operations Admin",
+    email: adminEmail,
+    password: hashPassword(DEFAULT_ADMIN_PASSWORD),
+    role: "admin",
+  });
+}
+
 async function readStore(): Promise<StoreData> {
   if (memoryStore) return memoryStore;
   try {
     const raw = await fs.readFile(storePath, "utf8");
     const parsed = JSON.parse(raw) as StoreData;
+    await ensureDefaultAdmin(parsed);
     memoryStore = parsed;
     return parsed;
   } catch {
     // fallback to seed in-memory store (safe for serverless/read-only mounts)
     const fallback: StoreData = {
       products: [],
-      users: [
-        {
-          id: "admin-1",
-          name: "Operations Admin",
-          email: "admin@theracketlifestyle.com",
-          password: "admin123",
-          role: "admin",
-        },
-      ],
+      users: [],
     };
+    await ensureDefaultAdmin(fallback);
     memoryStore = fallback;
     try {
       await fs.mkdir(path.dirname(storePath), { recursive: true });
@@ -96,7 +114,7 @@ export async function POST(request: Request) {
         id: `user-${Date.now()}`,
         name: body.name.trim(),
         email,
-        password,
+        password: hashPassword(password),
         role: "customer",
       };
 
@@ -109,12 +127,21 @@ export async function POST(request: Request) {
       return res;
     }
 
-    const matchingUser = store.users.find(
-      (user) => user.email.toLowerCase() === email && user.password === password && (body.role ? user.role === body.role : true)
-    );
+    const matchingUser = store.users.find((user) => user.email.toLowerCase() === email && (body.role ? user.role === body.role : true));
 
     if (!matchingUser) {
       return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
+    }
+
+    const isValidPassword = verifyPassword(password, matchingUser.password);
+
+    if (!isValidPassword) {
+      return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
+    }
+
+    if (!matchingUser.password.includes(":")) {
+      matchingUser.password = hashPassword(password);
+      await writeStore(store);
     }
 
     const token = signToken({ id: matchingUser.id, email: matchingUser.email, role: matchingUser.role });

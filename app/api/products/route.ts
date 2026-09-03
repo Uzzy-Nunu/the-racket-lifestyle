@@ -58,7 +58,7 @@ async function requireAdmin(request: Request | NextRequest) {
   const header = (request as any).headers?.get?.("authorization") || (request as any).headers?.get?.("Authorization");
   const tokenHeader = header?.startsWith("Bearer ") ? header!.slice(7) : null;
   const cookieHeader = (request as any).headers?.get?.("cookie") || "";
-  const cookieMatch = cookieHeader.split(";").map(s=>s.trim()).find(s=>s.startsWith("rkl_token="));
+  const cookieMatch = cookieHeader.split(";").map((s: string) => s.trim()).find((s: string) => s.startsWith("rkl_token="));
   const cookieToken = cookieMatch ? cookieMatch.split("=")[1] : null;
   const token = tokenHeader || cookieToken;
   const payload = verifyToken(token);

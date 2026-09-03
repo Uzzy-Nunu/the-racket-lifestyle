@@ -100,5 +100,13 @@
       "inStock": true
     }
   ],
-  "users": []
+  "users": [
+    {
+      "id": "admin-1788472958451",
+      "name": "Operations Admin",
+      "email": "admin@theracketlifestyle.com",
+      "password": "c2d03fee94120e3f61c8f9c16b28ea9e:7d309347f198d55bc47dc6c275fdcf4f2481816fda76d8da04147f7584faaa5bca421aae4341ecaa9e4f407d83a6872ba3cb1d49da1d9fbaa4688f28d8082142",
+      "role": "admin"
+    }
+  ]
 }
