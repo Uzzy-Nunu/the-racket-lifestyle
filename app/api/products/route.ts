@@ -61,7 +61,7 @@ async function requireAdmin(request: Request | NextRequest) {
   const cookieMatch = cookieHeader.split(";").map((s: string) => s.trim()).find((s: string) => s.startsWith("rkl_token="));
   const cookieToken = cookieMatch ? cookieMatch.split("=")[1] : null;
   const token = tokenHeader || cookieToken;
-  const payload = verifyToken(token);
+  const payload = await verifyToken(token);
   if (!payload || payload.role !== "admin") return null;
   return payload;
 }

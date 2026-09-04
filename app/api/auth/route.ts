@@ -121,7 +121,7 @@ export async function POST(request: Request) {
       store.users.push(user);
       await writeStore(store);
 
-      const token = signToken({ id: user.id, email: user.email, role: user.role });
+      const token = await signToken({ id: user.id, email: user.email, role: user.role });
       const res = NextResponse.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role } }, { status: 201 });
       res.headers.append("Set-Cookie", `rkl_token=${token}; Path=/; HttpOnly; SameSite=Lax; Secure`);
       return res;
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
       await writeStore(store);
     }
 
-    const token = signToken({ id: matchingUser.id, email: matchingUser.email, role: matchingUser.role });
+    const token = await signToken({ id: matchingUser.id, email: matchingUser.email, role: matchingUser.role });
     const res = NextResponse.json({ user: { id: matchingUser.id, name: matchingUser.name, email: matchingUser.email, role: matchingUser.role } });
     res.headers.append("Set-Cookie", `rkl_token=${token}; Path=/; HttpOnly; SameSite=Lax; Secure`);
     return res;
